@@ -1,0 +1,21 @@
+Package: mHealthieR
+Type: Package
+Title: Package to assess and evaluate longitudinal mHealth sensor data
+Version: 0.1.0
+Author: Eva Schitter
+Maintainer: Eva Schitter <schitter.eva@gmail.com>
+Description: This package is designed to extract time periods from mobile health
+    sensor data and cluster as well as display those. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+  plyr,
+  dplyr,
+  tidyr,
+  tidyverse,  
+  zoo,
+  imputeTS,
+  ComplexHeatmap,
+  magrittr
+RoxygenNote: 6.0.1
