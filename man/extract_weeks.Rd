@@ -4,14 +4,17 @@
 \alias{extract_weeks}
 \title{Extract weeks from tibble.}
 \usage{
-extract_weeks(tb, part_week = FALSE, weekNA = 0, ...)
+extract_weeks(tb, partial_weeks = FALSE, percentage_NA = 0,
+  start_monday = TRUE, ...)
 }
 \arguments{
 \item{tb}{data tibble}
 
-\item{part_week}{if TRUE incomplete weeks are also included in the result}
+\item{partial_weeks}{if TRUE incomplete weeks are also included in the result}
 
-\item{weekNA}{if set to 1 -> 1 missing value is allowed per week}
+\item{percentage_NA}{if set to 0.1 -> 10\% missing values are allowed per week}
+
+\item{start_monday}{if TRUE only weeks starting on Monday will be in the output}
 
 \item{...}{Any additional argument}
 }

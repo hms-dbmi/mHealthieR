@@ -1,7 +1,7 @@
 Package: mHealthieR
 Type: Package
 Title: Package to assess and evaluate longitudinal mHealth sensor data
-Version: 0.1.0
+Version: 0.0.1
 Author: Eva Schitter
 Maintainer: Eva Schitter <schitter.eva@gmail.com>
 Description: This package is designed to extract time periods from mobile health

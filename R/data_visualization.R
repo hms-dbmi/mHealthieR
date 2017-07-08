@@ -15,7 +15,7 @@ plot_core <- function(core_tb, ...){
   # reformat the core_tb binary format
   bin_tb <- core_tb %>%
     dplyr::mutate(., value = ifelse(value >= 1, 1, 0)) %>%
-    tidyr::spread(., date, value, fill = NA) %>%
+    tidyr::spread(., time, value, fill = NA) %>%
     .[,-c(1)]
 
   bin_tb[is.na(bin_tb)] <- 0
