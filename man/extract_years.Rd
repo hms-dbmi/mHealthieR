@@ -4,10 +4,10 @@
 \alias{extract_years}
 \title{Extract year from data tibble.}
 \usage{
-extract_years(tb, partial_year = FALSE, percentage_NA = 0, ...)
+extract_years(data_tbl, partial_year = FALSE, percentage_NA = 0, ...)
 }
 \arguments{
-\item{tb}{data tibble}
+\item{data_tbl}{data tibble}
 
 \item{partial_year}{if TRUE incomplete years are also included in the result}
 

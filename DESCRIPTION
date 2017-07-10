@@ -13,9 +13,11 @@ Imports:
   plyr,
   dplyr,
   tidyr,
+  tibble,
   tidyverse,  
   zoo,
   imputeTS,
   ComplexHeatmap,
+  lubridate,
   magrittr
 RoxygenNote: 6.0.1

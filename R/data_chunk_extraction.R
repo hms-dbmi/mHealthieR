@@ -11,7 +11,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' This function extract periods starting with the first value per individual
 #' and ending after a certain percentage of missing values (NAs) is reached.
 #'
-#' @param tb input data tibble.
+#' @param data_tbl input data tibble.
 #' @param percentage_NA percentage of allowed missing values a core period can have.
 #' @param impute_NA If TRUE NAs will be imputed based on weighted mean in a
 #'   certain window.
@@ -20,19 +20,19 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 #' @param identifier_column_index insert index of colum which contains IDs/keys.
 #' @importFrom magrittr "%>%"
 #' @export
-extract_cores <- function(tb,
+extract_cores <- function(data_tbl,
                           impute_NA = FALSE,
                           percentage_NA = 0.1,
                           window_size = 3,
                           identifier_column_index = 1){
-  if (check_format(tb) == "long"){
+  if (check_format(data_tbl) == "long"){
     # calculates the first core periods per patient
-    idents <- unique(tb[[identifier_column_index]])
+    idents <- unique(data_tbl[[identifier_column_index]])
       # extracts all unique identifiers
     cores_list <- lapply(idents, function(id){
-      sub_tb <- tb[which(tb[identifier_column_index] == id),]  %>%
+      sub_tb <- data_tbl[which(data_tbl[identifier_column_index] == id),]  %>%
                   # extract values for a single id
-                zoo::na.trim(.) # cuts of all NA from the start and end of the tb
+                zoo::na.trim(.) # cuts of all NA from the start and end of the data_tbl
       element_df <- data.frame(column=integer(), time=character())
       element_list <- c()
       for(element in 1:nrow(sub_tb)){
@@ -49,12 +49,12 @@ extract_cores <- function(tb,
         core <- as.data.frame(core) %>%
                 imputeTS::na.ma(. ,k=3, weighting = 'simple') %>%
                 # simple moving average over e.g. 7 days window
-                as.tibble(.)
+                tibble::as.tibble(.)
       })
     }
     cores <- plyr::ldply(cores_list, data.frame) %>%
              # concatinate all cores into one tibble
-             as.tibble(.)
+             tibble::as.tibble(.)
     return(cores)
   }
 }
@@ -66,18 +66,18 @@ extract_cores <- function(tb,
 #' This function extracts week long data chunks starting with Monday as first
 #' day of the week.
 #'
-#' @param tb data tibble
+#' @param data_tbl data tibble
 #' @param partial_weeks if TRUE incomplete weeks are also included in the result
 #' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per week
 #' @param start_monday if TRUE only weeks starting on Monday will be in the output
 #' @param ... Any additional argument
 #' @export
-extract_weeks <- function(tb, partial_weeks = FALSE, percentage_NA = 0,
+extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
                           start_monday = TRUE, ...){
-  if (check_format(tb) == "long"){
-    idents <- unique(tb[[1]]) # extracts all unique identifiers
+  if (check_format(data_tbl) == "long"){
+    idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
     sub_tbs <- lapply(idents, function(id){
-      sub_tb <- tb[which(tb[1] == id),] # extract values for a single id
+      sub_tb <- data_tbl[which(data_tbl[1] == id),] # extract values for a single id
     })
 
     weeks_lists <- lapply(sub_tbs, function(sub){
@@ -136,20 +136,20 @@ extract_weeks <- function(tb, partial_weeks = FALSE, percentage_NA = 0,
 #'
 #' This function extracts data chunks per year.
 #'
-#' @param tb data tibble
+#' @param data_tbl data tibble
 #' @param partial_year if TRUE incomplete years are also included in the result
 #' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per year
 #' @param ... Any additional argument
 #' @export
-extract_years <- function(tb, partial_year = FALSE, percentage_NA = 0, ...){
-  if (check_format(tb) == "long"){
-    idents <- unique(tb[[1]]) # extracts all unique identifiers
+extract_years <- function(data_tbl, partial_year = FALSE, percentage_NA = 0, ...){
+  if (check_format(data_tbl) == "long"){
+    idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
     sub_tbs <- lapply(idents, function(id){
-      sub_tb <- tb[which(tb[1] == id),] # extract values for a single id
+      sub_tb <- data_tbl[which(data_tbl[1] == id),] # extract values for a single id
     })
 
     years_lists <- lapply(sub_tbs, function(sub){
-      sub$year_f <- as.integer(format(sub$time, '%Y'))#calculates weekday factor
+      sub$year_f <- as.integer(format(sub$time, '%Y'))#calculates year factor
       sub <- zoo::na.trim(sub) # removes all NAs from start and end
       years <- split(sub, sub$year_f) # splits single weeks
       return(years)
@@ -188,8 +188,8 @@ extract_years <- function(tb, partial_year = FALSE, percentage_NA = 0, ...){
     if(length(years_list_filt) == 0){
       message('Year extraction not possible for this data set under the set parameters.')
 
-    return(years_list_filt)
     }
+  return(years_list_filt)
   }
 }
 

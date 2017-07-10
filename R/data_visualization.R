@@ -8,12 +8,12 @@
 #' for a value at a given day and 0 for a missing value.
 #'
 #' @param ... Any additional argument
-#' @param core_tb tibble with cores in wide format which should be plotted
+#' @param core_tbl tibble with cores in wide format which should be plotted
 #' @export
 
-plot_core <- function(core_tb, ...){
-  # reformat the core_tb binary format
-  bin_tb <- core_tb %>%
+plot_core <- function(core_tbl, ...){
+  # reformat the core_tbl binary format
+  bin_tb <- core_tbl %>%
     dplyr::mutate(., value = ifelse(value >= 1, 1, 0)) %>%
     tidyr::spread(., time, value, fill = NA) %>%
     .[,-c(1)]

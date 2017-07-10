@@ -4,10 +4,10 @@
 \alias{check_format}
 \title{Distinguish between wide or long table.}
 \usage{
-check_format(tb)
+check_format(data_tbl)
 }
 \arguments{
-\item{tb}{Data tibble which should be checked for the right format.}
+\item{data_tbl}{Data tibble which should be checked for the right format.}
 }
 \description{
 This function distinguishes, if the input is in wide or long table format.

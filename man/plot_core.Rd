@@ -4,10 +4,10 @@
 \alias{plot_core}
 \title{Plot cores over time.}
 \usage{
-plot_core(core_tb, ...)
+plot_core(core_tbl, ...)
 }
 \arguments{
-\item{core_tb}{tibble with cores in wide format which should be plotted}
+\item{core_tbl}{tibble with cores in wide format which should be plotted}
 
 \item{...}{Any additional argument}
 }

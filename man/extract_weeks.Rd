@@ -4,11 +4,11 @@
 \alias{extract_weeks}
 \title{Extract weeks from tibble.}
 \usage{
-extract_weeks(tb, partial_weeks = FALSE, percentage_NA = 0,
+extract_weeks(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
   start_monday = TRUE, ...)
 }
 \arguments{
-\item{tb}{data tibble}
+\item{data_tbl}{data tibble}
 
 \item{partial_weeks}{if TRUE incomplete weeks are also included in the result}
 

@@ -4,11 +4,11 @@
 \alias{extract_cores}
 \title{Extract core periods with a certain allowed percentage of NAs.}
 \usage{
-extract_cores(tb, impute_NA = FALSE, percentage_NA = 0.1, window_size = 3,
-  identifier_column_index = 1)
+extract_cores(data_tbl, impute_NA = FALSE, percentage_NA = 0.1,
+  window_size = 3, identifier_column_index = 1)
 }
 \arguments{
-\item{tb}{input data tibble.}
+\item{data_tbl}{input data tibble.}
 
 \item{impute_NA}{If TRUE NAs will be imputed based on weighted mean in a
 certain window.}

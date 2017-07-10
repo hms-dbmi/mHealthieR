@@ -7,7 +7,7 @@
 generate_second_data(percentage_NA = 0.2)
 }
 \arguments{
-\item{percentage_NA}{Percentage of missing valuess (NAs) in example data}
+\item{percentage_NA}{Percentage of missing valuess (NAs) in example data.}
 }
 \description{
 This function is used to generate mobile health sensor data as an example
