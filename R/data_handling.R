@@ -139,23 +139,23 @@ check_format <- function(data_tbl){
   # func to check if a value is in date format
   if (length(data_tbl) > 3){
     if (is_date(data_tbl[[1,1]])){
-      message('Please, set your time points as column names')
+      stop('Please, set your time points as column names')
     }else if(mode(data_tbl[[1,1]]) != 'character'){
-      message('Please, set your IDs/keys as first column.')
+      stop('Please, set your IDs/keys as first column.')
     }else{
-      message('Please, insert a table in the long table format.')
-      message('(column1 = keys, column2 = time points, column3 = values)')
-     return('wide')
+      warning('Please, insert a table in the long table format.')
+      warning('(column1 = keys, column2 = time points, column3 = values)')
+      return('wide')
     }
   }else{
     if (is_date(data_tbl[[1,1]])){
-      message('Please, use your IDs/keys as first column.')
+      stop('Please, use your IDs/keys as first column.')
     }else if(mode(data_tbl[[1,1]]) != 'character'){
-      message('Please, set your IDs/keys as first column.')
+      stop('Please, set your IDs/keys as first column.')
     }else if(!is_date(data_tbl[[1,2]])){
-      message('Please, set your time points as second column.')
+      stop('Please, set your time points as second column.')
     }else if(mode(data_tbl[[1,3]]) != 'numeric'){
-      message('Please, set your values as third column.')
+      stop('Please, set your values as third column.')
     }else{
     return('long')
     }
