@@ -21,3 +21,4 @@ Imports:
   lubridate,
   magrittr
 RoxygenNote: 6.0.1
+Suggests: testthat
