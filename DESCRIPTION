@@ -19,5 +19,10 @@ Imports:
   imputeTS,
   ComplexHeatmap,
   lubridate,
-  magrittr
+  magrittr,
+  kmlShape,
+  ggplot2,
+  plotly,
+  RColorBrewer,
+  gridExtra
 RoxygenNote: 6.0.1
