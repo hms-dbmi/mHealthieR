@@ -25,9 +25,9 @@ generate_day_data <- function(percentage_NA = 0.2){
 
   # concatinate these in a long tribble
   data_tb_long <- tibble::tibble(
-    'key'   = keys,
-    'time'  = times,
-    'value' = values
+    'keys'   = keys,
+    'times'  = times,
+    'values' = values
   )
 }
 
@@ -55,9 +55,9 @@ generate_second_data <- function(percentage_NA = 0.2){
 
   # concatinate these in a long tribble
   data_tb_long <- tibble::tibble(
-    'key'   = keys,
-    'time'  = times,
-    'value' = values
+    'keys'   = keys,
+    'times'  = times,
+    'values' = values
   )
 }
 
@@ -86,9 +86,9 @@ generate_year_data <- function(percentage_NA = 0.2){
 
   # concatinate these in a long tribble
   data_tb_long <- tibble::tibble(
-    'key'   = keys,
-    'time'  = times,
-    'value' = values
+    'keys'   = keys,
+    'times'  = times,
+    'values' = values
   )
 }
 
@@ -118,9 +118,9 @@ generate_hour_data <- function(percentage_NA = 0.2){
 
   # concatinate these in a long tribble
   data_tb_long <- tibble::tibble(
-    'key'   = keys,
-    'time'  = times,
-    'value' = values
+    'keys'   = keys,
+    'times'  = times,
+    'values' = values
   )
 }
 

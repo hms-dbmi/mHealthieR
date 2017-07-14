@@ -37,7 +37,7 @@ extract_cores <- function(data_tbl,
       element_list <- c()
       for(element in 1:nrow(sub_tb)){
         element_df <- rbind(element_df, sub_tb[element,])
-        element_list <- append(element_list, sub_tb[element,'value'])
+        element_list <- append(element_list, sub_tb[element,'values'])
         if(mean(is.na(element_list)) <= percentage_NA){ # filter for % NAs in core
           core <- zoo::na.trim(element_df) # removes NAs at start and end of cores
         }
@@ -81,8 +81,8 @@ extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
     })
 
     weeks_lists <- lapply(sub_tbs, function(sub){
-      sub$wday_f <- as.integer(format(sub$time, '%u'))#calculates weekday factor
-      sub$year_week_f <- format(sub$time, format = "%Y%W") # adds year&week factor
+      sub$wday_f <- as.integer(format(sub[[2]], '%u'))#calculates weekday factor
+      sub$year_week_f <- format(sub[[2]], format = "%Y%W") # adds year&week factor
       sub <- zoo::na.trim(sub) # removes all NAs from start and end
       weeks <- split(sub, sub$year_week_f) # splits single weeks
       return(weeks)
@@ -161,7 +161,7 @@ extract_years <- function(data_tbl, partial_year = FALSE, percentage_NA = 0, ...
           year_start <- as.Date(year[[1,2]])
           year_end <- as.Date(year[[nrow(year),2]])
           date_diff <- as.integer(year_end - year_start)
-          if(leap_year(year_end)){ # checks if the year is a leap year
+          if(lubridate::leap_year(year_end)){ # checks if the year is a leap year
             if(date_diff == 365){
               return(year)
             }
