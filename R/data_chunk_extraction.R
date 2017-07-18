@@ -33,7 +33,7 @@ extract_cores <- function(data_tbl,
       sub_tb <- data_tbl[which(data_tbl[identifier_column_index] == id),]  %>%
                   # extract values for a single id
                 zoo::na.trim(.) # cuts of all NA from the start and end of the data_tbl
-      element_df <- data.frame(column=integer(), time=character())
+      element_df <- data.frame(column=integer(), times=character())
       element_list <- c()
       for(element in 1:nrow(sub_tb)){
         element_df <- rbind(element_df, sub_tb[element,])
@@ -44,14 +44,18 @@ extract_cores <- function(data_tbl,
       }
       return(core)
     })
+
+
     if (impute_NA == TRUE){
       cores_list <- lapply(cores_list, function(core){
         core <- as.data.frame(core) %>%
-                imputeTS::na.ma(. ,k=3, weighting = 'simple') %>%
+                imputeTS::na.ma(. ,k= window_size, weighting = 'simple') %>%
                 # simple moving average over e.g. 7 days window
                 tibble::as.tibble(.)
       })
     }
+
+
     cores <- plyr::ldply(cores_list, data.frame) %>%
              # concatinate all cores into one tibble
              tibble::as.tibble(.)
@@ -70,10 +74,15 @@ extract_cores <- function(data_tbl,
 #' @param partial_weeks if TRUE incomplete weeks are also included in the result
 #' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per week
 #' @param start_monday if TRUE only weeks starting on Monday will be in the output
+#' @param impute_NA If TRUE NAs will be imputed based on weighted mean in a
+#'   certain window.
+#' @param window_size values on both sides of the value which should be imputed
+#'   (e.g. window_size =3 gives a 7 days window).
 #' @param ... Any additional argument
 #' @export
 extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
-                          start_monday = TRUE, ...){
+                          start_monday = TRUE, impute_NA = FALSE,
+                          window_size = 3, ...){
   if (check_format(data_tbl) == "long"){
     idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
     sub_tbs <- lapply(idents, function(id){
@@ -87,6 +96,20 @@ extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
       weeks <- split(sub, sub$year_week_f) # splits single weeks
       return(weeks)
     })
+
+    if (impute_NA == TRUE){
+      # impute missing values
+      weeks_lists <- lapply(weeks_lists,function(weeks_list){
+        weeks_list <- lapply(weeks_list, function(week){
+          week <- as.data.frame(week) %>%
+            imputeTS::na.ma(. ,k = window_size, weighting = 'simple') %>%
+            # simple moving average over e.g. 7 days window
+            tibble::as.tibble(.)
+          return(week)
+        })
+        return(weeks_list)
+      })
+    }
 
     if(partial_weeks != TRUE){
       # filters for whole weeks if partial_weeks parameter set to TRUE
@@ -136,12 +159,21 @@ extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
 #'
 #' This function extracts data chunks per year.
 #'
-#' @param data_tbl data tibble
-#' @param partial_year if TRUE incomplete years are also included in the result
-#' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per year
-#' @param ... Any additional argument
+#' @param data_tbl data tibble.
+#' @param partial_year if TRUE incomplete years are also included in the result.
+#' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per year.
+#' @param impute_NA If TRUE NAs will be imputed based on weighted mean in a
+#'   certain window.
+#' @param window_size values on both sides of the value which should be imputed
+#'   (e.g. window_size =3 gives a 7 days window).
+#' @param ... Any additional argument.
 #' @export
-extract_years <- function(data_tbl, partial_year = FALSE, percentage_NA = 0, ...){
+extract_years <- function(data_tbl,
+                          partial_year = FALSE,
+                          percentage_NA = 0,
+                          impute_NA = FALSE,
+                          window_size = 3,
+                          ...){
   if (check_format(data_tbl) == "long"){
     idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
     sub_tbs <- lapply(idents, function(id){
@@ -149,11 +181,26 @@ extract_years <- function(data_tbl, partial_year = FALSE, percentage_NA = 0, ...
     })
 
     years_lists <- lapply(sub_tbs, function(sub){
-      sub$year_f <- as.integer(format(sub$time, '%Y'))#calculates year factor
+      sub$year_f <- as.integer(format(sub[[2]], '%Y'))#calculates year factor
       sub <- zoo::na.trim(sub) # removes all NAs from start and end
       years <- split(sub, sub$year_f) # splits single weeks
       return(years)
     })
+
+    if (impute_NA == TRUE){
+      # impute missing values
+      years_lists <- lapply(years_lists,function(years){
+        years <- lapply(years, function(year){
+          year <- as.data.frame(year) %>%
+            imputeTS::na.ma(. ,k = window_size, weighting = 'simple') %>%
+            # simple moving average over e.g. 7 days window
+            tibble::as.tibble(.)
+          return(year)
+        })
+        return(years)
+      })
+    }
+
 
     if( partial_year != TRUE){
       years_lists <- lapply(years_lists, function(years){

@@ -17,25 +17,30 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
 plot_core <- function(core_tbl, ...){
   # reformat the core_tbl binary format
-  bin_tb <- core_tbl %>%
-    dplyr::mutate(., values = ifelse(.[[3]] >= 1, 1, 0)) %>%
-    tidyr::spread(., times, values, fill = NA) %>%
-    .[,-c(1)]
+  bin_tbl <- core_tbl %>%
+    dplyr::mutate(., values = ifelse(.[[3]] >= 1, 1, 0))
+  bin_tbl[is.na(bin_tbl)] <- 0
 
-  bin_tb[is.na(bin_tb)] <- 0
-  bin_heatmap <- ComplexHeatmap::Heatmap(bin_tb,
-                                         na_col = "red",
-                                         col = c('black','light grey'),
-                                         show_column_names = FALSE,
-                                         column_title = 'time points',
-                                         row_title = 'individuals',
-                                         column_title_side = "bottom",
-                                         heatmap_legend_param =
-                                           list(title = "existing\nvalues"),
-                                         width = 2,
-                                         cluster_rows = TRUE,
-                                         cluster_columns = FALSE
-  )
+  bin_heatmap <- ggplot(data = bin_tbl, aes(x = bin_tbl[[2]], y = bin_tbl[[1]])) +
+    geom_tile(aes(fill = factor(bin_tbl[[3]]))) +
+    scale_fill_manual(breaks =factor(bin_tbl[[3]]),
+                      values = c('grey20', 'grey85'),
+                      name = "existing\nvalue")+
+    xlab('timepoints') + ylab('individuals') +
+    ggtitle('Data Core Plot') +
+    theme(plot.background = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.background = element_blank(),
+          panel.border = element_blank())
+
+  # if over 50 individuals are in the data set -> remove y labels
+  if (length(unique(bin_tbl[[1]])) > 50){
+    bin_heatmap <- bin_heatmap +
+      theme(axis.text.y = element_blank(),
+            axis.ticks.y = element_blank())
+  }
+
   message('Explaination: 1 stands for existing values ',
           'and 0 for a missing values')
   bin_heatmap
@@ -195,6 +200,7 @@ plot_cluster_data <- function(clustering_result = NULL,
 #' @param color_palette Specify the colorbrewer palette used for the cluster.
 #'   display in the following style c(number of colors in the palette, palette name).
 #' @param ... Any additional argument.
+#' @importFrom gridExtra "grid.arrange"
 #' @export
 # change plot appearance for grid display
 plot_cluster_grid <- function(cluster_plots_list,
@@ -239,6 +245,29 @@ plot_cluster_grid <- function(cluster_plots_list,
   return(cluster_plots_grid)
 }
 
+
+
+#' Display number of data chunks per cluster in an interactive histogram.
+#'
+#' This functions displays the number of unique IDs per cluster. The IDs represent
+#' e.g. weeks, years, core periods or all data of own patient.
+#'
+#' @param clustering_result Clustering result list from cluster_shapes function.
+#' @export
+create_cluster_hist <- function(clustering_result){
+  cluster_numbers <-  clustering_result$cluster_assignement$clusters
+  ticks_vals <- sort(c(unique(cluster_numbers)))
+  cluster_hist <- plotly::plot_ly(x = cluster_numbers, type= 'histogram') %>%
+                  plotly::layout(
+                    title = 'Number of Data Chunks per Cluster',
+                    xaxis = list(title = 'Cluster',
+                                 ticks ="outside",
+                                 tickvals = ticks_vals,
+                                 ticktext = ticks_vals),
+                    yaxis = list(title = 'Number of Data Chunks'),
+                    bargap = 0.05)
+
+}
 
 
 
