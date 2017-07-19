@@ -4,10 +4,12 @@
 \alias{create_cluster_hist}
 \title{Display number of data chunks per cluster in an interactive histogram.}
 \usage{
-create_cluster_hist(clustering_result)
+create_cluster_hist(clustering_result, ...)
 }
 \arguments{
 \item{clustering_result}{Clustering result list from cluster_shapes function.}
+
+\item{...}{Any additional plotly arguments.}
 }
 \description{
 This functions displays the number of unique IDs per cluster. The IDs represent

@@ -59,6 +59,9 @@ extract_cores <- function(data_tbl,
     cores <- plyr::ldply(cores_list, data.frame) %>%
              # concatinate all cores into one tibble
              tibble::as.tibble(.)
+
+    cores <- add_time_resolution(cores)
+    attr(cores, 'chunk_description') <- 'cores'
     return(cores)
   }
 }
@@ -151,7 +154,22 @@ extract_weeks <- function(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
       message('Week extraction not possible for this data set under the set parameters.')
     }
   }
-  return(weeks_list_filt)
+  weeks_tbl <- plyr::ldply(weeks_list_filt, data.frame) %>%
+    # concatinate all weeks into one tibble
+    tibble::as.tibble(.)
+
+  #create identifier with original ID + year code
+  weeks_tbl$keyTimefactor <- paste(weeks_tbl[[2]], weeks_tbl[[5]], sep='_')
+
+  # reorder the colums because the factor is needed on position 2 for clustering
+  weeks_tbl <- cbind(weeks_tbl[c(7,5,4,2,3,6)])
+
+  # add atrributes
+  weeks_tbl <- add_time_resolution(weeks_tbl)
+  attr(weeks_tbl, 'chunk_description') <- 'weeks'
+
+
+  return(weeks_tbl)
 }
 
 
@@ -175,13 +193,16 @@ extract_years <- function(data_tbl,
                           window_size = 3,
                           ...){
   if (check_format(data_tbl) == "long"){
+
     idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
     sub_tbs <- lapply(idents, function(id){
-      sub_tb <- data_tbl[which(data_tbl[1] == id),] # extract values for a single id
+      sub_tb <- data_tbl[which(data_tbl[1] == id),]
+      # extract values for a single id and stores it in a list
     })
 
     years_lists <- lapply(sub_tbs, function(sub){
       sub$year_f <- as.integer(format(sub[[2]], '%Y'))#calculates year factor
+      sub$yearday <- lubridate::yday(sub[[2]])
       sub <- zoo::na.trim(sub) # removes all NAs from start and end
       years <- split(sub, sub$year_f) # splits single weeks
       return(years)
@@ -234,11 +255,132 @@ extract_years <- function(data_tbl,
 
     if(length(years_list_filt) == 0){
       message('Year extraction not possible for this data set under the set parameters.')
-
     }
-  return(years_list_filt)
+
+    years_tbl <- plyr::ldply(years_list_filt, data.frame) %>%
+      # concatinate all weeks into one tibble
+      tibble::as.tibble(.)
+
+    #create identifier with original ID + year code
+    years_tbl$keyTimefactor <- paste(years_tbl[[2]], years_tbl[[5]], sep='_')
+
+    # reorder the colums because the factor is needed on position 2 for clustering
+    years_tbl <- cbind(years_tbl[c(7,6,4,2,3,5)])
+
+    # add attributes
+    years_tbl <- add_time_resolution(years_tbl)
+    attr(years_tbl, 'chunk_description') <- 'years'
+
+    return(years_tbl)
   }
 }
 
+
+#' Extract days from data tibble.
+#'
+#' This function extracts data chunks per day.
+#'
+#' @param data_tbl data tibble.
+#' @param partial_day If TRUE incomplete days are also included in the result.
+#'    This means that also days which do not have at least one data point in the
+#'    first and the last hour of the day are included in the result.
+#' @param percentage_NA if set to 0.1 -> 10\% missing values are allowed per day.
+#' @param impute_NA If TRUE NAs will be imputed based on weighted mean in a
+#'   certain window.
+#' @param window_size values on both sides of the value which should be imputed
+#'   (e.g. window_size =3 gives a 7 days window).
+#' @param ... Any additional argument.
+#' @export
+extract_days <- function(data_tbl,
+                         partial_day = TRUE,
+                         percentage_NA = 0,
+                         impute_NA = FALSE,
+                         window_size = 3,
+                         ...){
+  if (check_format(data_tbl) == "long"){
+
+    idents <- unique(data_tbl[[1]]) # extracts all unique identifiers
+    sub_tbs <- lapply(idents, function(id){
+      sub_tb <- data_tbl[which(data_tbl[1] == id),]
+      # extract values for a single id and stores it in a list
+    })
+
+    days_lists <- lapply(sub_tbs, function(sub){
+      sub$day_f <- as.integer(format(sub[[2]], '%d'))#calculates day factor
+      days <- split(sub, sub$day_f) # splits single weeks
+      return(days)
+    })
+
+    days_lists <- lapply(days_lists, function(lists){
+      # removes all NAs from start and end
+      lists <- lapply(lists, function(ls){
+        ls_trimmed <- zoo::na.trim(ls)
+        return(ls_trimmed)
+      })
+      return(lists)
+    })
+
+    if (impute_NA == TRUE){
+      # impute missing values
+      days_lists <- lapply(days_lists, function(days){
+        days <- lapply(days, function(day){
+          day <- as.data.frame(day) %>%
+            imputeTS::na.ma(. ,k = window_size, weighting = 'simple') %>%
+            # simple moving average over e.g. 7 data points window
+            tibble::as.tibble(.)
+          return(day)
+        })
+        return(days)
+      })
+    }
+
+    if( partial_day != TRUE){
+      days_lists <- lapply(days_lists, function(days){
+        days <- lapply(days, function(day){
+          day_start <- day[[1,2]]
+          day_end <- day[[nrow(day),2]]
+          date_diff <- as.integer(day_end - day_start)
+          if(date_diff >= 23){
+            # filters for all days with at least one entry in the first
+            # and last our of the day
+            return(day)
+          }
+        })
+      })
+    }
+
+
+    days_lists <- unlist(days_lists, recursive = FALSE)
+    days_list_filt <- Filter(Negate(is.null), days_lists) # drops empty lists
+
+    days_list_filt <- lapply( days_list_filt, function(day){
+      # filters for a defined number of missing days per day
+      if(mean(is.na(day[,3])) <= percentage_NA){
+        return(day)}
+    })
+
+    days_list_filt <- Filter(Negate(is.null), days_list_filt) # drops empty lists
+
+    if(length(days_list_filt) == 0){
+      stop('Day extraction not possible for this data set under the set parameters.')
+    }
+
+    days_tbl <- plyr::ldply(days_list_filt, data.frame) %>%
+      # concatinate all weeks into one tibble
+      tibble::as.tibble(.)
+
+    #create identifier with original ID + day code
+    days_tbl$keyTimefactor <- paste(days_tbl[[2]], days_tbl[[5]], sep='_')
+
+    # reorder the colums because the factor is needed on position 2 for clustering
+    days_tbl <- cbind(days_tbl[c(6,3,4,2,5)])
+
+    # add attributes
+    days_tbl <- add_time_resolution(days_tbl)
+    attr(days_tbl, 'chunk_description') <- 'days'
+
+    return(days_tbl)
+  }
+}
 
 

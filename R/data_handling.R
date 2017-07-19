@@ -164,5 +164,29 @@ check_format <- function(data_tbl){
 }
 
 
+#' Determine the time resolution of the input data tibble.
+#'
+#' This function is designed to determine the time resolution of the input data
+#' tibble based on the first two unique time points. The determined time resolution
+#' /(e.g. 'days'/) is then attached to the object as attribute 'time_resolution'.
+#'
+#' @param data_tbl Data tibble for which the time resolution should be determined.
+#' @export
+add_time_resolution <- function(data_tbl){
+  uniq_timepoints <- sort(unique(data_tbl[[2]]))
+
+  if(lubridate::is.POSIXct(uniq_timepoints[1])){
+    time_diff <- uniq_timepoints[2] - uniq_timepoints[1]
+    time_resolution <- attributes(time_diff)$units
+    attr(data_tbl, 'time_resolution') <- time_resolution
+  }else if(max(uniq_timepoints %in% c(8:365))){
+    attr(data_tbl, 'time_resolution') <- 'yeardays'
+  }else if(uniq_timepoints[1] %in% c(1:7)){
+    attr(data_tbl, 'time_resolution') <- 'weekdays'
+  }
+  return(data_tbl)
+}
+
+
 
 

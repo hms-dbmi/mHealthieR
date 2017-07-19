@@ -22,20 +22,20 @@ aggregate_time_periods <- function(data_tbl, aggregate_to = NULL,
     data_tbl <- dplyr::bind_rows(data_tbl)
   }
 
-  if (check_format(data_tbl) == "long"){
 
-    if(is.null(aggregate_to)){
-      stop('Please, specify the unit which the data should be aggregated into.')
-    }else if(aggregate_to == 'day'){
-      col_names <- colnames(data_tbl) # keep the column names
-      grouped_days <- data_tbl %>%
-        dplyr::mutate(`days` = as.POSIXct(format(data_tbl[[2]], '%Y-%m-%d'))) %>%
-        dplyr::group_by(data_tbl[[1]], `days`) %>%
-        dplyr::summarize(aggregation_method(data_tbl[[3]] , na.rm = TRUE)) %>%
-        dplyr::ungroup()
+  if(is.null(aggregate_to)){
+    stop('Please, specify the unit which the data should be aggregated into.')
+  }else if(aggregate_to == 'day'){
+    col_names <- colnames(data_tbl[c(1:3)]) # keep the column names
+    colnames(data_tbl) <- c('keys','times','values') # colnames for this func
+    grouped_days <- data_tbl %>%
+      dplyr::mutate(`days` = as.POSIXct(format(data_tbl[[2]], '%Y-%m-%d'))) %>%
+      dplyr::group_by(data_tbl[[1]], `days`) %>%
+      dplyr::summarize(aggregation_method(values , na.rm = TRUE)) %>%
+      dplyr::ungroup()
 
-      colnames(grouped_days) <- col_names
-      return(grouped_days)
-    }
+    colnames(grouped_days) <- col_names
+    return(grouped_days)
   }
 }
+

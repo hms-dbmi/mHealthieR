@@ -5,13 +5,15 @@
 \title{Display mean shape summary.}
 \usage{
 plot_mean_shapes(clustering_result = NULL, color_palette = c(12, "Paired"),
-  ...)
+  yaxis_unit = NULL, ...)
 }
 \arguments{
 \item{clustering_result}{Clustering result list from cluster_shapes function.}
 
 \item{color_palette}{Specify the colorbrewer palette used for the cluster.
 display in the following style c(number of colors in the palette, palette name).}
+
+\item{yaxis_unit}{Unit of values displayed on the y axis over time.}
 
 \item{...}{Any additional argument.}
 }

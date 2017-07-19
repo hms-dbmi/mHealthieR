@@ -84,8 +84,14 @@ cluster_shapes <- function(data_tbl,
 
   ### check if the input is a list and convert it to tibble
   if(is.vector(data_tbl)){
+    chunk_descr <- attributes(data_tbl[[1]])$chunk_description
     data_tbl <- dplyr::bind_rows(data_tbl)
+  }else{
+    chunk_descr <- attributes(data_tbl)$chunk_description
   }
+
+  data_tbl <- add_time_resolution(data_tbl)
+  time_res <- attributes(data_tbl)$time_resolution
 
   ### deal with times in POSIXct format and time factors
   if(lubridate::is.POSIXt(data_tbl[[1,2]])){
@@ -100,8 +106,11 @@ cluster_shapes <- function(data_tbl,
   # trim input data in right format for clustering
   set.seed(1)
   Clds_long <- kmlShape::cldsLong(data_tbl)
-  kmlShape::reduceTraj(Clds_long, nbSenators= n_senators, nbTimes=n_times)
-  # complexity reduction
+
+  if(length(unique(data_tbl[[1]])) > 100){
+    kmlShape::reduceTraj(Clds_long, nbSenators= n_senators, nbTimes=n_times)
+    # complexity reduction
+  }
   cluster_result <- kmlShape::kmlShape(Clds_long, nbClusters = shapes,
                                        timeScale = timescale_factor,
                                        FrechetSumOrMax = frechet_method,
@@ -130,9 +139,9 @@ cluster_shapes <- function(data_tbl,
   cluster_result_list <- list(cluster_assignement = clusters_assigned,
                               detailed_result = cluster_result,
                               cluster_number = shapes,
-                              mean_trajectories_tbl = mean_trajectories_tbl #,
-                              #means_plot = cluster_means_plot,
-                              #cluster_plots = cluster_plots_grid
+                              mean_trajectories_tbl = mean_trajectories_tbl,
+                              time_resolution = time_res,
+                              chunk_description = chunk_descr
                               )
 
   return(cluster_result_list)
