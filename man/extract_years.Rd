@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_chunk_extraction.R
 \name{extract_years}
 \alias{extract_years}
-\title{Extract year from data tibble.}
+\title{Extract years from data tibble.}
 \usage{
 extract_years(data_tbl, partial_year = FALSE, percentage_NA = 0,
   impute_NA = FALSE, window_size = 3, ...)
@@ -23,5 +23,5 @@ certain window.}
 \item{...}{Any additional argument.}
 }
 \description{
-This function extracts data chunks per year.
+This function extracts one data chunk per year.
 }

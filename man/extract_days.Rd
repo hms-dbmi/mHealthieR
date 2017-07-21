@@ -25,5 +25,5 @@ certain window.}
 \item{...}{Any additional argument.}
 }
 \description{
-This function extracts data chunks per day.
+This function extracts one data chunk per day.
 }

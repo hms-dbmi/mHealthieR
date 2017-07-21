@@ -179,10 +179,8 @@ add_time_resolution <- function(data_tbl){
     time_diff <- uniq_timepoints[2] - uniq_timepoints[1]
     time_resolution <- attributes(time_diff)$units
     attr(data_tbl, 'time_resolution') <- time_resolution
-  }else if(max(uniq_timepoints %in% c(8:365))){
-    attr(data_tbl, 'time_resolution') <- 'yeardays'
-  }else if(uniq_timepoints[1] %in% c(1:7)){
-    attr(data_tbl, 'time_resolution') <- 'weekdays'
+  }else{
+    message('No time resolution attribute added.')
   }
   return(data_tbl)
 }

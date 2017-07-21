@@ -109,7 +109,7 @@ plot_mean_shapes <- function(clustering_result = NULL,
   cluster_means_plot <- cluster_means_plot %>%
     plotly::layout(title = 'Mean Shapes',
                    xaxis = list(title = paste0('Time Points [',
-                                               clustering_result$time_resolution,
+                                               clustering_result$time_factor,
                                                ']')),
                    yaxis = list(title = yaxis_label))
 
@@ -180,7 +180,7 @@ plot_cluster_data <- function(clustering_result = NULL,
                                                    alpha = 0.7)) +
       ggplot2::geom_hline(colour = 'black', yintercept = mean(df[[3]])) +
       # add line at mean value
-      ggplot2::xlab(paste0('Time Points [', clustering_result$time_resolution, ']')) +
+      ggplot2::xlab(paste0('Time Points [', clustering_result$time_factor, ']')) +
       ggplot2::ylab('Values') +
       ggplot2::ggtitle(paste('Cluster ', shape )) +
       ggplot2::theme(legend.position="none",
