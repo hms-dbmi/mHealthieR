@@ -6,6 +6,8 @@
 # using magrittr (https://github.com/tidyverse/magrittr/issues/29)
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
+globalVariables(c('days', 'values'))
+
 #' Aggregate longitudinal data to another time unit
 #'
 #' This function is designed to aggregate longitudinal data to another, bigger
