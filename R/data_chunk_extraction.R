@@ -6,6 +6,8 @@
 # using magrittr (https://github.com/tidyverse/magrittr/issues/29)
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
+
+
 #' Extract core periods with a certain allowed percentage of NAs.
 #'
 #' This function extract periods starting with the first value per individual

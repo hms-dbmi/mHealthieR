@@ -173,16 +173,18 @@ check_format <- function(data_tbl){
 #' @param data_tbl Data tibble for which the time resolution should be determined.
 #' @export
 add_time_resolution <- function(data_tbl){
-  uniq_timepoints <- sort(unique(data_tbl[[2]]))
+  if(check_format(data_tbl) == 'long'){
+    uniq_timepoints <- sort(unique(data_tbl[[2]]))
 
-  if(lubridate::is.POSIXct(uniq_timepoints[1])){
-    time_diff <- uniq_timepoints[2] - uniq_timepoints[1]
-    time_resolution <- attributes(time_diff)$units
-    attr(data_tbl, 'time_resolution') <- time_resolution
-  }else{
-    message('No time resolution attribute added.')
+    if(lubridate::is.POSIXct(uniq_timepoints[1])){
+      time_diff <- uniq_timepoints[2] - uniq_timepoints[1]
+      time_resolution <- attributes(time_diff)$units
+      attr(data_tbl, 'time_resolution') <- time_resolution
+    }else{
+      message('No time resolution attribute added.')
+    }
+    return(data_tbl)
   }
-  return(data_tbl)
 }
 
 
