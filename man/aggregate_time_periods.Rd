@@ -13,9 +13,9 @@ aggregate_time_periods(data_tbl, aggregate_to = NULL,
 \item{aggregate_to}{unit to which the data should be aggregated to.}
 
 \item{aggregation_method}{function which should be used to summarize
-the data per time frame.}
+the data per time frame (sum or max).}
 }
 \description{
 This function is designed to aggregate longitudinal data to another, bigger
-time unit
+time unit.
 }
