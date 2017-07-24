@@ -6,10 +6,10 @@
 # using magrittr (https://github.com/tidyverse/magrittr/issues/29)
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
+
 # This function suppressses notes arising from column names used
 # with magrittr pipes and dplyr functions.
 globalVariables(c('timepoints', 'values'))
-
 
 #' Aggregate longitudinal data to another time unit
 #'
