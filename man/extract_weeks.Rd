@@ -5,7 +5,7 @@
 \title{Extract weeks from tibble.}
 \usage{
 extract_weeks(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
-  start_monday = TRUE, ...)
+  start_monday = TRUE, impute_NA = FALSE, window_size = 3, ...)
 }
 \arguments{
 \item{data_tbl}{data tibble}
@@ -15,6 +15,12 @@ extract_weeks(data_tbl, partial_weeks = FALSE, percentage_NA = 0,
 \item{percentage_NA}{if set to 0.1 -> 10\% missing values are allowed per week}
 
 \item{start_monday}{if TRUE only weeks starting on Monday will be in the output}
+
+\item{impute_NA}{If TRUE NAs will be imputed based on weighted mean in a
+certain window.}
+
+\item{window_size}{values on both sides of the value which should be imputed
+(e.g. window_size =3 gives a 7 days window).}
 
 \item{...}{Any additional argument}
 }

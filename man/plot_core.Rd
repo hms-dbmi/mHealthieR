@@ -7,9 +7,9 @@
 plot_core(core_tbl, ...)
 }
 \arguments{
-\item{core_tbl}{tibble with cores in wide format which should be plotted}
+\item{core_tbl}{tibble with cores in wide format which should be plotted.}
 
-\item{...}{Any additional argument}
+\item{...}{Any additional argument.}
 }
 \description{
 This function plots all core period over time in a binary fashion. 1 stands

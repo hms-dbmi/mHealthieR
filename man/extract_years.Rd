@@ -2,19 +2,26 @@
 % Please edit documentation in R/data_chunk_extraction.R
 \name{extract_years}
 \alias{extract_years}
-\title{Extract year from data tibble.}
+\title{Extract years from data tibble.}
 \usage{
-extract_years(data_tbl, partial_year = FALSE, percentage_NA = 0, ...)
+extract_years(data_tbl, partial_year = FALSE, percentage_NA = 0,
+  impute_NA = FALSE, window_size = 3, ...)
 }
 \arguments{
-\item{data_tbl}{data tibble}
+\item{data_tbl}{data tibble.}
 
-\item{partial_year}{if TRUE incomplete years are also included in the result}
+\item{partial_year}{if TRUE incomplete years are also included in the result.}
 
-\item{percentage_NA}{if set to 0.1 -> 10\% missing values are allowed per year}
+\item{percentage_NA}{if set to 0.1 -> 10\% missing values are allowed per year.}
 
-\item{...}{Any additional argument}
+\item{impute_NA}{If TRUE NAs will be imputed based on weighted mean in a
+certain window.}
+
+\item{window_size}{values on both sides of the value which should be imputed
+(e.g. window_size =3 gives a 7 days window).}
+
+\item{...}{Any additional argument.}
 }
 \description{
-This function extracts data chunks per year.
+This function extracts one data chunk per year.
 }
