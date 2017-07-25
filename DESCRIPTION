@@ -24,6 +24,7 @@ Imports:
   ggplot2,
   plotly,
   RColorBrewer,
-  gridExtra
+  gridExtra,
+  rmarkdown
 RoxygenNote: 6.0.1
 Suggests: testthat
