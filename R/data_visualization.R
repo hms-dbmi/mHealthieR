@@ -113,9 +113,8 @@ plot_mean_shapes <- function(clustering_result = NULL,
                                                ']')),
                    yaxis = list(title = yaxis_label))
 
-  cluster_plot_result <- list( mean_shapes_plot = cluster_means_plot)
 
-  return(cluster_plot_result)
+  return(cluster_means_plot)
 }
 
 
@@ -295,6 +294,7 @@ create_cluster_hist <- function(clustering_result, ...){
       yaxis = list(title = yaxis_label),
       bargap = 0.05)
 
+  return(cluster_hist)
 }
 
 

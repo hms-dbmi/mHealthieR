@@ -90,7 +90,9 @@ cluster_shapes <- function(data_tbl,
     chunk_descr <- attributes(data_tbl)$chunk_description
   }
 
-  data_tbl <- add_time_resolution(data_tbl)
+  if(lubridate::is.POSIXct(data_tbl[[1,2]])){
+    data_tbl <- add_time_resolution(data_tbl)
+  }
   time_res <- attributes(data_tbl)$time_resolution
 
   ### deal with times in POSIXct format and time factors

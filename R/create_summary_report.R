@@ -17,7 +17,8 @@
 create_report <- function(output_path = getwd(),
                           show_html = TRUE,
                           ...){
-  report_path <- paste0(getwd(), '/R/summary_report.R' )
+  report_path <- system.file("report", "summary_report.R", package = "mHealthieR")
+  print(report_path)
   rmarkdown::render(report_path, output_dir = output_path, clean = TRUE, ...)
   if(show_html == TRUE){
     browseURL(paste0(output_path,'/summary_report.html'))

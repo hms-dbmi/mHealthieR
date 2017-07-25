@@ -27,6 +27,7 @@ extract_cores <- function(data_tbl,
                           percentage_NA = 0.1,
                           window_size = 3,
                           identifier_column_index = 1){
+  colnames(data_tbl) <- c('keys', 'times', 'values')
   if (check_format(data_tbl) == "long"){
     # calculates the first core periods per patient
     time_res <- attributes(add_time_resolution(data_tbl))$time_resolution
