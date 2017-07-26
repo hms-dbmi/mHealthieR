@@ -1,5 +1,5 @@
 #' ---
-#' title: Summary Report
+#' title: Example Summary Report
 #' author: " "
 #' date: "`r format(Sys.time(), '%d %B %Y')`"
 #' output:
@@ -79,4 +79,10 @@ plots_grid <- plot_cluster_grid(cluster_plots_list = detail_plots,
 cluster_histogram <- create_cluster_hist(clustering_result)
 cluster_histogram
 
+#' ### Detailed Violin plots
+#+ echo = FALSE, message = FALSE
+# data must be previously aggregated and extracted
+detail_violins <- create_violin_plots(weeks, weeks,
+                                      clustering_result = clustering_result)
+detail_violins
 

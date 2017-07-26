@@ -298,5 +298,63 @@ create_cluster_hist <- function(clustering_result, ...){
 }
 
 
+#' create violin plot per cluster per day.
+#'
+#' This function creates violin plots which show the distribution of values
+#' either from the data where the clustering was performed on or some additional
+#' data with the same identifiers. One violin plot gets created for every time
+#' point summarized in one figure per cluster.
+#'
+#' @param data_tbl Data tibble where the clustering was performed on.
+#' @param additional_data_tbl Data tibble where the clustering was performed on
+#'   or any other data tibble with additional values but the same IDs and time
+#'   points.
+#' @param color_palette Customizable color palette vector with ColorBrewer parameters.
+#' @param clustering_result Clustering result list from cluster_shapes function.
+#' @param ... Any additional plotly arguments for ggplot2.
+#' @export
+create_violin_plots <- function(data_tbl, additional_data_tbl,
+                                clustering_result = NULL,
+                                color_palette = c(12, 'Paired'),
+                                ...){
+  # Retrieve the shapes the clustering was calculated on
+  shapes <- clustering_result$cluster_number
+  index_vec <- c(1:shapes)
 
+  # create colors based on numbers of clusters
+  color_scale <- colorRampPalette(RColorBrewer::brewer.pal(as.numeric(color_palette[1]),
+                                                           color_palette[2]))(shapes)
+  # get the additional data corresponding to the clusters calculated on the data_tbl
+  cluster_rel <- clustering_result$cluster_assignement
+  cluster_rel_list <- split(cluster_rel, cluster_rel$clusters)
+  additional_real_data <- lapply(cluster_rel_list, function(ls){
+    real_data <- additional_data_tbl[which(additional_data_tbl[[1]] %in% ls[[2]]),]
+  })
+
+  detail_violin_plots <- lapply(index_vec, function(index){
+    real_df <- additional_real_data[[index]]
+    real_df[[2]] <- as.factor(real_df[[2]])
+
+    if(length(unique(real_df[[2]])) < 21){
+      violin  <- ggplot2::ggplot(real_df, ggplot2::aes(x = real_df[[2]],
+                                                       y = real_df[[3]])) +
+        ggplot2:: geom_violin(trim = FALSE) +
+        ggplot2::stat_summary(fun.data="mean_sdl", geom="crossbar", width=0.06 )+
+        ggplot2::geom_hline(colour = 'black', yintercept = mean(real_df[[3]])) +
+        ggplot2::labs(title = paste0('Value distribution over time for cluster ',
+                                     index) ,
+                      x= attributes(additional_data_tbl)$time_factor,
+                      y = "values")
+
+      violin <- violin +  ggplot2::annotate('text',
+                                            x = min(as.numeric(levels(real_df[[2]]))) - min(as.numeric(levels(real_df[[2]])))* 0.25 ,
+                                            y = mean(real_df[[3]] + real_df[[3]]*0.075),
+                                            label = 'average')
+
+      return(violin)
+    }
+  })
+
+  return(detail_violin_plots)
+}
 

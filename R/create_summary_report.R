@@ -14,13 +14,13 @@
 #' @param ... Further options for rmarkdown::render.
 #' @importFrom utils "browseURL"
 #' @export
-create_report <- function(output_path = getwd(),
+create_example_report <- function(output_path = getwd(),
                           show_html = TRUE,
                           ...){
-  report_path <- system.file("report", "summary_report.R", package = "mHealthieR")
+  report_path <- system.file("report", "example_summary_report.R", package = "mHealthieR")
   print(report_path)
   rmarkdown::render(report_path, output_dir = output_path, clean = TRUE, ...)
   if(show_html == TRUE){
-    browseURL(paste0(output_path,'/summary_report.html'))
+    browseURL(paste0(output_path,'/example_summary_report.html'))
   }
 }
