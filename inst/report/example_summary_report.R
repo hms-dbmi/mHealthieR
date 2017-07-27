@@ -79,10 +79,36 @@ plots_grid <- plot_cluster_grid(cluster_plots_list = detail_plots,
 cluster_histogram <- create_cluster_hist(clustering_result)
 cluster_histogram
 
-#' ### Detailed Violin plots
+#' ### Summary Violin Plot
+#+ echo = FALSE, message = FALSE
+# data must be previously aggregated and extracted
+summary_violins <- create_cluster_violin_plot(weeks, weeks,
+                                              clustering_result = clustering_result)
+summary_violins
+
+
+#' ### Detailed Violin Plots
 #+ echo = FALSE, message = FALSE
 # data must be previously aggregated and extracted
 detail_violins <- create_violin_plots(weeks, weeks,
                                       clustering_result = clustering_result)
 detail_violins
+
+#' ### Cluster Frequency Heatmap
+#+ echo = FALSE, message = FALSE, warning = FALSE
+# data must be previously aggregated and extracted
+freq_heatmap <- create_cluster_freq_heatmap(weeks,
+                                            clustering_result = clustering_result)
+freq_heatmap
+
+#' ### Value Heatmap per Cluster
+#+ echo = FALSE, message = FALSE, warning = FALSE, fig.show = 'all'
+# data must be previously aggregated and extracted
+cluster_heatmaps <- create_cluster_values_heatmap(weeks,
+                                                  clustering_result = clustering_result)
+cluster_heatmaps[[1]]
+cluster_heatmaps[[2]]
+cluster_heatmaps[[3]]
+
+
 

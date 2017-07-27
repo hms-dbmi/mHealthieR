@@ -25,6 +25,7 @@ Imports:
   RColorBrewer,
   gridExtra,
   rmarkdown,
-  heatmaply
+  iheatmapr,
+  htmltools
 RoxygenNote: 6.0.1
 Suggests: testthat

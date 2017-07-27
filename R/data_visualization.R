@@ -6,6 +6,10 @@
 # using magrittr (https://github.com/tidyverse/magrittr/issues/29)
 if(getRversion() >= "2.15.1")  utils::globalVariables(c("."))
 
+# This function suppressses notes arising from column names used
+# with magrittr pipes and dplyr functions.
+globalVariables(c('cluster', 'freq', 'row_number', 'key', 'value'))
+
 #' Plot cores over time.
 #'
 #' This function plots all core period over time in a binary fashion. 1 stands
@@ -246,11 +250,16 @@ plot_cluster_grid <- function(cluster_plots_list,
                                      colour =  ggplot2::alpha('grey28', alpha = 0.85),
                                      size = 1)
     plot_build <-  ggplot2::ggplot_build(plt)
-    plot_build$data[[1]]$colour <-  ggplot2::alpha(color_scale[shape], alpha = 0.3) # add more transparency
-    plot_build$plot$theme$axis.title <-  ggplot2::element_text(size = 7) # lower axis title font size
-    plot_build$plot$theme$axis.text <-  ggplot2::element_text(size = 7) # lower axis label font size
-    plot_build$plot$theme$plot.title <-  ggplot2::element_text(size = 7,  # lower title font size
-                                                               hjust = 0, # adjust title to left side
+    plot_build$data[[1]]$colour <-  ggplot2::alpha(color_scale[shape], alpha = 0.3)
+    # add more transparency
+    plot_build$plot$theme$axis.title <-  ggplot2::element_text(size = 7)
+    # lower axis title font size
+    plot_build$plot$theme$axis.text <-  ggplot2::element_text(size = 7)
+    # lower axis label font size
+    plot_build$plot$theme$plot.title <-  ggplot2::element_text(size = 7,
+                                                               # lower title font size
+                                                               hjust = 0,
+                                                               # adjust title to left side
                                                                face = 'bold')
     plot_table <-  ggplot2::ggplot_gtable(plot_build)
     return(plot_table)
@@ -298,7 +307,7 @@ create_cluster_hist <- function(clustering_result, ...){
 }
 
 
-#' create violin plot per cluster per day.
+#' Create violin plot per cluster per day.
 #'
 #' This function creates violin plots which show the distribution of values
 #' either from the data where the clustering was performed on or some additional
@@ -307,8 +316,8 @@ create_cluster_hist <- function(clustering_result, ...){
 #'
 #' @param data_tbl Data tibble where the clustering was performed on.
 #' @param additional_data_tbl Data tibble where the clustering was performed on
-#'   or any other data tibble with additional values but the same IDs and time
-#'   points.
+#'   or any other data tibble with additional values but the same IDs and similar
+#'   time points.
 #' @param color_palette Customizable color palette vector with ColorBrewer parameters.
 #' @param clustering_result Clustering result list from cluster_shapes function.
 #' @param ... Any additional plotly arguments for ggplot2.
@@ -339,22 +348,238 @@ create_violin_plots <- function(data_tbl, additional_data_tbl,
       violin  <- ggplot2::ggplot(real_df, ggplot2::aes(x = real_df[[2]],
                                                        y = real_df[[3]])) +
         ggplot2:: geom_violin(trim = FALSE) +
-        ggplot2::stat_summary(fun.data="mean_sdl", geom="crossbar", width=0.06 )+
+        ggplot2::stat_summary(fun.data = "mean_sdl", geom = "crossbar",
+                              width=0.06 ) +
         ggplot2::geom_hline(colour = 'black', yintercept = mean(real_df[[3]])) +
         ggplot2::labs(title = paste0('Value distribution over time for cluster ',
-                                     index) ,
-                      x= attributes(additional_data_tbl)$time_factor,
+                                     index),
+                      x = attributes(additional_data_tbl)$time_factor,
                       y = "values")
 
-      violin <- violin +  ggplot2::annotate('text',
-                                            x = min(as.numeric(levels(real_df[[2]]))) - min(as.numeric(levels(real_df[[2]])))* 0.25 ,
-                                            y = mean(real_df[[3]] + real_df[[3]]*0.075),
-                                            label = 'average')
+      violin <- violin +
+        ggplot2::annotate('text',
+                          x = min(as.numeric(levels(real_df[[2]]))) - min(
+                            as.numeric(levels(real_df[[2]])))* 0.25 ,
+                          y = mean(real_df[[3]] + real_df[[3]]*0.075),
+                          label = 'average')
 
       return(violin)
     }
   })
-
   return(detail_violin_plots)
 }
+
+
+#' Create violin plot per cluster.
+#'
+#' This function creates violin plots which show the distribution of values
+#' either from the data where the clustering was performed on or some additional
+#' data with the same identifiers. One violin plot gets created for every cluster
+#' summarized in one figure.
+#'
+#' @param data_tbl Data tibble where the clustering was performed on.
+#' @param additional_data_tbl Data tibble where the clustering was performed on
+#'   or any other data tibble with additional values but the same IDs and similar
+#'   time points.
+#' @param color_palette Customizable color palette vector with ColorBrewer parameters.
+#' @param clustering_result Clustering result list from cluster_shapes function.
+#' @param ... Any additional plotly arguments for ggplot2.
+#' @export
+create_cluster_violin_plot <- function(data_tbl, additional_data_tbl,
+                                       clustering_result = NULL,
+                                       color_palette = c(12, 'Paired'),
+                                       ...){
+  # Retrieve the shapes the clustering was calculated on
+  shapes <- clustering_result$cluster_number
+  index_vec <- c(1:shapes)
+
+  # create colors based on numbers of clusters
+  color_scale <- colorRampPalette(RColorBrewer::brewer.pal(as.numeric(color_palette[1]),
+                                                           color_palette[2]))(shapes)
+  # get the additional data corresponding to the clusters calculated on the data_tbl
+  cluster_rel <- clustering_result$cluster_assignement
+  cluster_rel_list <- split(cluster_rel, cluster_rel$clusters)
+  additional_real_data <- lapply(cluster_rel_list, function(ls){
+    real_data <- additional_data_tbl[which(additional_data_tbl[[1]] %in% ls[[2]]),]
+  })
+
+  # calculate value distribution per cluster
+  clust_values_list <- lapply(index_vec, function(index){
+    cluster_values <- additional_real_data[[index]]
+    cluster_col <- length(cluster_values) + 1 # determine cluster col index
+    cluster_values$cluster <- rep(index, nrow(cluster_values))
+    cluster_values <- cluster_values[, c(1, cluster_col, 3)]
+    return(cluster_values)
+  })
+
+  # concatinate cluster value dfs to one df
+  clust_values <- plyr::ldply(clust_values_list, data.frame)
+
+
+  clust_values[[2]] <- as.factor(clust_values[[2]]) # for plotting function
+  violin  <- ggplot2::ggplot(clust_values, ggplot2::aes(x = clust_values[[2]],
+                                                        y = clust_values[[3]])) +
+    ggplot2::geom_violin(trim = FALSE,
+                         ggplot2::aes(fill = factor(clust_values[[2]]))) +
+    ggplot2::scale_fill_manual(breaks = factor(clust_values[[2]]),
+                               values = color_scale,
+                               name = 'cluster')+
+    ggplot2::stat_summary(fun.data = "mean_sdl", geom = "crossbar", width=0.06 )+
+    ggplot2::geom_hline(colour = 'black', yintercept = mean(clust_values[[3]])) +
+    ggplot2::labs(title = 'Value distribution per cluster',
+                  x = 'clusters' , y = "values")
+
+  violin <- violin +
+    ggplot2::annotate('text',
+                      x = 0.5,
+                      y = mean(clust_values[[3]] + clust_values[[3]]*0.075),
+                      label = 'avg')
+
+  return(violin)
+}
+
+#' Create Cluster Frequency per Individual Heatmap.
+#'
+#' This function calculates the cluster frequency per individual and displays
+#' the percentages in a heatmap.
+#'
+#' @param data_tbl Data tibble where the clustering was performed on.
+#' @param color_palette Customizable color palette vector with ColorBrewer parameters.
+#' @param clustering_result Clustering result list from cluster_shapes function.
+#' @param ... Any additional plotly arguments for ggplot2.
+#' @export
+create_cluster_freq_heatmap <- function(data_tbl,
+                                        clustering_result = NULL,
+                                        color_palette = c(12, 'Paired'),
+                                        ...){
+  # Retrieve the shapes the clustering was calculated on
+  shapes <- clustering_result$cluster_number
+  index_vec <- c(1:shapes)
+
+  # create colors based on numbers of clusters
+  color_scale <- colorRampPalette(RColorBrewer::brewer.pal(as.numeric(color_palette[1]),
+                                                           color_palette[2]))(shapes)
+
+  grey_color_scale <- colorRampPalette(c('#f0f0f0','#d9d9d9','#bdbdbd','#969696',
+                                         '#737373','#525252','#252525',
+                                         '#000000'))(100)
+
+  # get the additional data corresponding to the clusters calculated on the data_tbl
+  cluster_rel <- clustering_result$cluster_assignement
+  cluster_rel_list <- split(cluster_rel, cluster_rel$clusters)
+  clust_per_ind_list <- lapply(index_vec, function(index){
+    # cluster number per individual
+    ls <- cluster_rel_list[[index]]
+    real_data <- data_tbl[which(data_tbl[[1]] %in% ls[[2]]),]
+    key_chunk_rel <- real_data[,c(1,5)] %>%
+      dplyr::group_by(.[[1]], .[[2]]) %>%
+      dplyr::filter(row_number() == 1) %>%
+      dplyr::ungroup() %>%
+      .[,c(1,2)]
+    key_clust_rel <- tibble::as.tibble(table(key_chunk_rel))
+    key_clust_rel$cluster <- rep(index, nrow(key_clust_rel))
+    colnames(key_clust_rel) <- c('chunkKey', 'key', 'freq', 'cluster')
+    key_clust_rel <- key_clust_rel[,c('cluster','key', 'freq')]
+    return(key_clust_rel)
+  })
+
+  clust_per_ind <- plyr::ldply(clust_per_ind_list, data.frame) %>%
+    dplyr::group_by(.[[1]], .[[2]]) %>%
+    dplyr::summarize(sum(freq, na.rm = TRUE)) %>%
+    dplyr::ungroup()
+
+  colnames(clust_per_ind) <- c('cluster','key', 'freq')
+  clust_per_ind_df <- tidyr::spread(clust_per_ind, cluster, freq, fill = NA)
+  clust_per_ind_df[is.na(clust_per_ind_df)] <- 0
+  clust_per_ind_df <- as.data.frame(clust_per_ind_df)
+  rownames(clust_per_ind_df) <- clust_per_ind_df[[1]]
+  clust_per_ind_df <- clust_per_ind_df[,-1]
+
+
+  # heatmap with cluster freq per individual
+  clust_summary_scaled <- prop.table(as.matrix(clust_per_ind_df), margin = 1)
+  clust_sum_heatmap <- iheatmapr::main_heatmap(clust_summary_scaled,
+                                               name ='percentage',
+                                               colors = grey_color_scale) %>%
+    iheatmapr::add_col_title('Relativ Cluster Frequency<br>per Individual',
+                             side = "top", font = list(size = 16)) %>%
+    iheatmapr::add_col_title('Clusters',
+                             side = "bottom", font = list(size = 14)) %>%
+    iheatmapr::add_col_labels(side = "bottom",
+                              textangle = 0) %>%
+    iheatmapr::add_row_labels(size = 0.3,font = list(size = 12),
+                              side = 'left') %>%
+    iheatmapr::add_row_title('Individuals', side = 'left') %>%
+    iheatmapr::add_row_clustering( side = 'right') %>%
+    iheatmapr::add_col_annotation(data.frame('cluster' = colnames(clust_summary_scaled)),
+                                  side = 'bottom',
+                                  colors = list('cluster' = color_scale))
+  return(clust_sum_heatmap)
+}
+
+#' Create Heatmap which displays values over time per data chunk and cluster.
+#'
+#' This function creates one heatmap per cluster which shows the values per
+#' cluster for each individual data chunk over time.
+#'
+#' @param data_tbl Data tibble where the clustering was performed on.
+#' @param color_palette Customizable color palette vector with ColorBrewer parameters.
+#' @param clustering_result Clustering result list from cluster_shapes function.
+#' @param ... Any additional plotly arguments for ggplot2.
+#' @export
+create_cluster_values_heatmap <- function(data_tbl,
+                                          clustering_result = NULL,
+                                          color_palette = c(12, 'Paired'),
+                                          ...){
+  # Retrieve the shapes the clustering was calculated on
+  shapes <- clustering_result$cluster_number
+  index_vec <- c(1:shapes)
+
+  # create colors based on numbers of clusters
+  color_scale <- colorRampPalette(RColorBrewer::brewer.pal(as.numeric(color_palette[1]),
+                                                           color_palette[2]))(shapes)
+
+  # get the additional data corresponding to the clusters calculated on the data_tbl
+  cluster_rel <- clustering_result$cluster_assignement
+  cluster_rel_list <- split(cluster_rel, cluster_rel$clusters)
+  additional_real_data <- lapply(cluster_rel_list, function(ls){
+    real_data <- data_tbl[which(data_tbl[[1]] %in% ls[[2]]),]
+  })
+
+  interactiv_additional_data <- lapply(additional_real_data, function(ls){
+    ls <- ls[,c(1,2,3)]
+    colnames(ls) <- c('key', 'timefactor', 'value' )
+    ls_wide <- tidyr::spread(ls, key, value, fill = NA)
+    rownames(ls_wide) <- ls_wide$timefactor
+    ls_wide <- ls_wide[,-1]
+    ls_wide <- t(ls_wide)
+    return(ls_wide)
+  })
+
+  cluster_heatmaps <- lapply(index_vec, function(shape){
+    interactiv_data <-(as.matrix(interactiv_additional_data[[shape]]))
+    heatmap_color_scale <- colorRampPalette(c('#ffffff',
+                                              color_scale[shape]))(max(interactiv_data))
+    interactive_plot <- iheatmapr::main_heatmap(interactiv_data,
+                                                name ='values',
+                                                colors = heatmap_color_scale) %>%
+      iheatmapr::add_col_summary(layout = list(title = paste0('avg per<br>',
+                                                              attributes(data_tbl)$time_factor),
+                                               font = list(size = 8))) %>%
+      iheatmapr::add_col_title(paste("Patterns for cluster", shape),
+                               side = "top", font = list(size = 16)) %>%
+      iheatmapr::add_col_title(attributes(data_tbl)$time_factor,
+                               side = "bottom", font = list(size = 14)) %>%
+      iheatmapr::add_col_labels(side = "bottom",
+                                textangle = 0) %>%
+      iheatmapr::add_row_labels(size = 0.3,font = list(size = 12),
+                                side = 'left') %>%
+      iheatmapr::add_row_summary(groups = TRUE, type = "bar",
+                                 layout = list(title = "avg<br>time chunk",
+                                               font = list(size = 3)))
+    return(interactive_plot)
+  })
+  return(cluster_heatmaps)
+}
+
 
