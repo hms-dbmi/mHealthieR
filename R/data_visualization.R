@@ -579,6 +579,7 @@ create_cluster_values_heatmap <- function(data_tbl,
                                                font = list(size = 3)))
     return(interactive_plot)
   })
+
   return(cluster_heatmaps)
 }
 

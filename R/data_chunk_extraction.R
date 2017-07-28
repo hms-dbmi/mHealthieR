@@ -66,6 +66,7 @@ extract_cores <- function(data_tbl,
 
     attr(cores, 'time_resolution') <- time_res
     attr(cores, 'chunk_description') <- 'cores'
+    attr(cores, 'time_factor') <- time_res
     return(cores)
   }
 }

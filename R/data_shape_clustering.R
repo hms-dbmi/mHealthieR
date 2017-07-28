@@ -95,6 +95,8 @@ cluster_shapes <- function(data_tbl,
   }
   time_res <- attributes(data_tbl)$time_resolution
 
+  time_fac <- attributes(data_tbl)$time_factor
+
   ### deal with times in POSIXct format and time factors
   if(lubridate::is.POSIXt(data_tbl[[1,2]])){
     data_tbl[[2]] <- as.integer(data_tbl[[2]])
@@ -143,7 +145,8 @@ cluster_shapes <- function(data_tbl,
                               cluster_number = shapes,
                               mean_trajectories_tbl = mean_trajectories_tbl,
                               time_resolution = time_res,
-                              chunk_description = chunk_descr
+                              chunk_description = chunk_descr,
+                              time_factor = time_fac
                               )
 
   return(cluster_result_list)

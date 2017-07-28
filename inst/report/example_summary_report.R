@@ -102,13 +102,12 @@ freq_heatmap <- create_cluster_freq_heatmap(weeks,
 freq_heatmap
 
 #' ### Value Heatmap per Cluster
-#+ echo = FALSE, message = FALSE, warning = FALSE, fig.show = 'all'
+#+ echo = FALSE, message = FALSE, warning = FALSE, fig.keep = TRUE
 # data must be previously aggregated and extracted
 cluster_heatmaps <- create_cluster_values_heatmap(weeks,
                                                   clustering_result = clustering_result)
+
 cluster_heatmaps[[1]]
 cluster_heatmaps[[2]]
 cluster_heatmaps[[3]]
-
-
 
